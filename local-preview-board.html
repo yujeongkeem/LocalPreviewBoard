@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Local Preview Board</title>
+<style>
+*{box-sizing:border-box;border-radius:0!important}
+body{margin:0;font:14px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif;background:#0f1115;color:#e6e8ec;display:flex;height:100vh;overflow:hidden}
+
+.thin-scroll{scrollbar-width:thin;scrollbar-color:transparent transparent}
+.thin-scroll::-webkit-scrollbar{width:8px;height:8px}
+.thin-scroll::-webkit-scrollbar-track{background:transparent}
+.thin-scroll::-webkit-scrollbar-thumb{background:transparent;transition:background 160ms ease}
+.thin-scroll.is-scrolling::-webkit-scrollbar-thumb{background:#3a4152}
+.thin-scroll.is-scrolling{scrollbar-color:#3a4152 transparent}
+.thin-scroll::-webkit-scrollbar-thumb:hover{background:#4a5468}
+
+#side{width:330px;min-width:200px;max-width:70vw;flex:0 0 auto;background:#161920;border-right:1px solid #262b36;display:flex;flex-direction:column;position:relative}
+#resizer{position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:5}
+#resizer:hover,#resizer.is-dragging{background:#5b9dff33}
+#side header{padding:16px;border-bottom:1px solid #262b36}
+#side h1{margin:0 0 4px;font-size:15px}
+#side .sub{font-size:12px;color:#8b93a3}
+#q{width:100%;margin-top:10px;padding:8px 10px;background:#0f1115;border:1px solid #2d3340;color:#e6e8ec;font-size:13px}
+#folderRow{display:flex;gap:6px;margin-top:10px}
+#folderRow button{flex:1;background:#243044;color:#dbe3f0;border:1px solid #35435c;padding:7px 8px;font-size:12px;cursor:pointer}
+#folderRow button:hover{background:#2c3a52}
+#folderRow button.primary{background:#1e6edc;border-color:#1e6edc}
+#folderRow button.primary:hover{background:#2a7ce8}
+#list{overflow:auto;flex:1;padding:8px}
+.grp{margin:10px 6px 4px;font-size:11px;letter-spacing:.06em;color:#6f7a8d;text-transform:uppercase}
+.row{display:flex;align-items:center;gap:6px;padding:7px 8px;cursor:pointer}
+.row:hover{background:#1e232d}
+.row.on{background:#243044;box-shadow:inset 2px 0 0 #5b9dff}
+.row .nm{flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row a.ext{color:#6f7a8d;text-decoration:none;font-size:11px;padding:2px 5px;border:1px solid #2d3340}
+.row a.ext:hover{color:#e6e8ec;border-color:#4a5468}
+#main{flex:1;display:flex;flex-direction:column;min-width:0}
+#bar{padding:10px 14px;border-bottom:1px solid #262b36;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#161920}
+#bar .t{font-weight:600;font-size:13px;margin-right:auto}
+label.w{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#b6bdca;cursor:pointer}
+label.w input{accent-color:#5b9dff}
+button{background:#243044;color:#dbe3f0;border:1px solid #35435c;padding:6px 11px;font-size:12px;cursor:pointer}
+button:hover{background:#2c3a52}
+#stage{flex:1;overflow:auto;padding:16px;background:#0b0d11}
+#frames{display:flex;gap:16px;align-items:flex-start;min-height:100%}
+.fw{flex:0 0 auto;background:#161920;border:1px solid #262b36;overflow:hidden}
+.fw .cap{padding:7px 10px;font-size:11px;color:#8b93a3;border-bottom:1px solid #262b36;display:flex;justify-content:space-between}
+.fw .cap b{color:#dbe3f0}
+.fw iframe{display:block;border:0;background:#fff;height:calc(100vh - 150px);width:calc(100% + 20px)}
+#empty{color:#6f7a8d;padding:40px;font-size:13px;line-height:2;max-width:520px}
+#empty code{background:#1e232d;border:1px solid #333b49;padding:1px 5px;font-size:12px}
+kbd{background:#1e232d;border:1px solid #333b49;padding:1px 5px;font-size:11px}
+.status{font-size:11px;color:#6f7a8d;margin-top:6px}
+.status.err{color:#ff9c9c}
+</style>
+</head>
+<body>
+<div id="side">
+  <header>
+    <h1>Local Preview Board</h1>
+    <div class="sub" id="countSub">폴더를 선택하세요</div>
+    <input id="q" placeholder="페이지 검색…">
+    <div id="folderRow">
+      <button id="pickFolder" class="primary">폴더 선택</button>
+      <button id="reconnect" style="display:none">다시 연결</button>
+    </div>
+    <div class="status" id="status"></div>
+  </header>
+  <div id="list" class="thin-scroll"></div>
+  <div id="resizer"></div>
+</div>
+<div id="main">
+  <div id="bar">
+    <span class="t" id="title">페이지를 선택하세요</span>
+    <label class="w"><input type="checkbox" value="360">360</label>
+    <label class="w"><input type="checkbox" value="390" checked>390 ★</label>
+    <label class="w"><input type="checkbox" value="480">480</label>
+    <label class="w"><input type="checkbox" value="768" checked>768 ★</label>
+    <label class="w"><input type="checkbox" value="1440">1440</label>
+    <label class="w"><input type="checkbox" value="1920" checked>1920 ★</label>
+    <button id="openTab">새 탭으로 열기</button>
+    <button id="openGrp">이 그룹 전체 열기</button>
+  </div>
+  <div id="stage" class="thin-scroll">
+    <div id="empty">
+      <b>1.</b> 이 파일(<code>local-preview-board.html</code>)을 검수하고 싶은
+      로컬 정적 사이트의 루트 폴더(또는 HTML들이 들어있는 폴더) 안에 복사해두세요.<br><br>
+      <b>2.</b> 왼쪽 위 "폴더 선택"을 누르고, <u>방금 이 파일을 넣은 그 폴더</u>를
+      선택하세요. (다른 폴더를 고르면 미리보기가 안 뜹니다 — 상대경로 기준이 이 파일
+      자신의 위치라서 그렇습니다)<br><br>
+      <b>3.</b> 폴더 안의 모든 <code>.html</code> 파일을 자동으로 찾아서 왼쪽에 나열합니다.
+      이름이 마음에 안 들면 <code>pages.js</code> 파일을 같은 폴더에 만들어서
+      표시 이름/그룹을 커스터마이즈할 수 있습니다 (README 참고).<br><br>
+      <kbd>↑</kbd> <kbd>↓</kbd> 키로 페이지 이동. ※ 로컬(file://)에서 열어야 동작합니다.
+    </div>
+    <div id="frames" style="display:none"></div>
+  </div>
+</div>
+<script src="pages.js" onerror="window.__pagesConfigMissing=true"></script>
+<script>
+const SKIP_DIRS = new Set(["node_modules", ".git", ".svn", ".hg", "dist", "build", ".next", ".vercel", ".cache"]);
+const SELF_NAME = location.pathname.split("/").pop();
+
+const listEl=document.getElementById('list'), framesEl=document.getElementById('frames'),
+      emptyEl=document.getElementById('empty'), titleEl=document.getElementById('title'),
+      countSub=document.getElementById('countSub'), statusEl=document.getElementById('status');
+let ALL_PAGES=[], DATA=[], flat=[], cur=-1, curGroup=null, dirHandle=null;
+
+// ---------- IndexedDB: 디렉토리 핸들 저장/복원 ----------
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open("local-preview-board", 1);
+    req.onupgradeneeded = () => req.result.createObjectStore("handles");
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbSet(key, val) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("handles", "readwrite");
+    tx.objectStore("handles").put(val, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbGet(key) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("handles", "readonly");
+    const req = tx.objectStore("handles").get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// ---------- 폴더 스캔 ----------
+async function walk(handle, relPath, out) {
+  for await (const [name, entry] of handle.entries()) {
+    if (entry.kind === "directory") {
+      if (SKIP_DIRS.has(name) || name.startsWith(".")) continue;
+      await walk(entry, relPath + name + "/", out);
+    } else if (/\.html?$/i.test(name) && name !== SELF_NAME) {
+      out.push(relPath + name);
+    }
+  }
+}
+
+function buildGroups(paths) {
+  const cfg = (window.PAGES_CONFIG && window.PAGES_CONFIG.pages) || {};
+  const groupOrder = (window.PAGES_CONFIG && window.PAGES_CONFIG.groupOrder) || [];
+  const byGroup = new Map();
+  paths.sort((a, b) => a.localeCompare(b)).forEach((p) => {
+    const meta = cfg[p];
+    const group = meta?.group || (p.includes("/") ? p.split("/")[0] : "루트");
+    const label = meta?.label || p.split("/").pop();
+    if (!byGroup.has(group)) byGroup.set(group, []);
+    byGroup.get(group).push({ p, l: label });
+  });
+  const orderedGroupNames = [
+    ...groupOrder.filter((g) => byGroup.has(g)),
+    ...[...byGroup.keys()].filter((g) => !groupOrder.includes(g)).sort(),
+  ];
+  return orderedGroupNames.map((g) => ({ g, items: byGroup.get(g) }));
+}
+
+async function scan(handle) {
+  statusEl.className = "status";
+  statusEl.textContent = "스캔 중…";
+  const paths = [];
+  try {
+    await walk(handle, "", paths);
+  } catch (e) {
+    statusEl.className = "status err";
+    statusEl.textContent = "스캔 실패: " + e.message;
+    return;
+  }
+  ALL_PAGES = paths;
+  DATA = buildGroups(paths);
+  countSub.textContent = `HTML ${paths.length}개 · ${handle.name}`;
+  statusEl.textContent = "";
+  document.getElementById("reconnect").style.display = "none";
+  build("");
+}
+
+async function pickFolder() {
+  try {
+    const handle = await window.showDirectoryPicker({ mode: "read" });
+    dirHandle = handle;
+    await idbSet("root", handle);
+    await scan(handle);
+  } catch (e) {
+    if (e.name !== "AbortError") {
+      statusEl.className = "status err";
+      statusEl.textContent = "폴더 선택 실패: " + e.message;
+    }
+  }
+}
+
+async function tryRestore() {
+  let saved;
+  try { saved = await idbGet("root"); } catch (e) { return; }
+  if (!saved) return;
+  dirHandle = saved;
+  const perm = await saved.queryPermission({ mode: "read" });
+  if (perm === "granted") {
+    scan(saved);
+  } else {
+    document.getElementById("reconnect").style.display = "block";
+    countSub.textContent = `이전 폴더: ${saved.name} (재연결 필요)`;
+  }
+}
+
+document.getElementById("pickFolder").addEventListener("click", pickFolder);
+document.getElementById("reconnect").addEventListener("click", async () => {
+  if (!dirHandle) return;
+  const perm = await dirHandle.requestPermission({ mode: "read" });
+  if (perm === "granted") scan(dirHandle);
+  else { statusEl.className = "status err"; statusEl.textContent = "권한이 거부되었습니다."; }
+});
+
+// ---------- 목록 렌더 / 미리보기 (이하 로직은 기존 도구와 동일) ----------
+function build(filter){
+  listEl.innerHTML=''; flat=[];
+  DATA.forEach(g=>{
+    const items=g.items.filter(it=>!filter || (it.l+it.p).toLowerCase().includes(filter));
+    if(!items.length) return;
+    const h=document.createElement('div'); h.className='grp'; h.textContent=g.g+' ('+items.length+')';
+    listEl.appendChild(h);
+    items.forEach(it=>{
+      const idx=flat.length; flat.push({...it, g:g.g});
+      const r=document.createElement('div'); r.className='row'; r.dataset.i=idx;
+      const n=document.createElement('span'); n.className='nm'; n.textContent=it.l; n.title=it.p;
+      const a=document.createElement('a'); a.className='ext'; a.href=it.p; a.target='_blank'; a.textContent='↗';
+      a.onclick=e=>e.stopPropagation();
+      r.append(n,a);
+      r.onclick=()=>show(idx);
+      listEl.appendChild(r);
+    });
+  });
+}
+function widths(){ return [...document.querySelectorAll('.w input:checked')].map(i=>+i.value).sort((a,b)=>a-b); }
+function show(i){
+  if(i<0||i>=flat.length) return;
+  cur=i; const it=flat[i]; curGroup=it.g;
+  document.querySelectorAll('.row').forEach(r=>r.classList.toggle('on', +r.dataset.i===i));
+  titleEl.textContent=it.l+'  —  '+it.p;
+  emptyEl.style.display='none'; framesEl.style.display='flex';
+  framesEl.innerHTML='';
+  widths().forEach(w=>{
+    const d=document.createElement('div'); d.className='fw'; d.style.width=w+'px';
+    d.innerHTML='<div class="cap"><b>'+w+'px</b><span>'+(w<=480?'모바일':w<=768?'태블릿':'데스크톱')+'</span></div>';
+    const f=document.createElement('iframe'); f.src=it.p; d.appendChild(f);
+    framesEl.appendChild(d);
+  });
+  const row=document.querySelector('.row.on'); if(row) row.scrollIntoView({block:'nearest'});
+}
+document.getElementById('q').oninput=e=>build(e.target.value.trim().toLowerCase());
+document.querySelectorAll('.w input').forEach(c=>c.onchange=()=>{ if(cur>=0) show(cur); });
+document.getElementById('openTab').onclick=()=>{ if(cur>=0) window.open(flat[cur].p,'_blank'); };
+document.getElementById('openGrp').onclick=()=>{
+  if(!curGroup){ alert('먼저 페이지를 하나 선택하세요.'); return; }
+  const g=DATA.find(x=>x.g===curGroup); if(!g) return;
+  if(!confirm(curGroup+' 그룹의 '+g.items.length+'개 페이지를 새 탭으로 엽니다.\n(팝업 차단 허용이 필요할 수 있습니다)')) return;
+  g.items.forEach((it,k)=>setTimeout(()=>window.open(it.p,'_blank'), k*120));
+};
+document.onkeydown=e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowDown'){ e.preventDefault(); show(cur+1); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); show(cur-1); }
+};
+
+document.querySelectorAll('.thin-scroll').forEach(el=>{
+  let t;
+  el.addEventListener('scroll', ()=>{
+    el.classList.add('is-scrolling');
+    clearTimeout(t);
+    t=setTimeout(()=>el.classList.remove('is-scrolling'), 700);
+  }, { passive: true });
+});
+
+(() => {
+  const side = document.getElementById('side');
+  const handle = document.getElementById('resizer');
+  const saved = +localStorage.getItem('lpbSideW');
+  if (saved) side.style.width = saved + 'px';
+  let dragging = false;
+  handle.addEventListener('mousedown', (e) => {
+    dragging = true;
+    handle.classList.add('is-dragging');
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const w = Math.min(Math.max(e.clientX, 200), Math.round(window.innerWidth * 0.7));
+    side.style.width = w + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('is-dragging');
+    document.body.style.userSelect = '';
+    localStorage.setItem('lpbSideW', parseInt(side.style.width, 10));
+  });
+})();
+
+tryRestore();
+</script>
+</body>
+</html>
