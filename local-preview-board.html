@@ -43,14 +43,12 @@ body{margin:0;font:14px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif;
 .chip{display:inline-flex;align-items:center;background:#1a1e26;color:#8b93a3;border:1px solid #2d3340;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;user-select:none;white-space:nowrap}
 .chip:hover{background:#232833;color:#c3cad6;border-color:#4a5468}
 .chip.on{background:#1e6edc;color:#fff;border-color:#1e6edc}
-.chip .star{color:#5b9dff;margin-left:3px}
-.chip.on .star{color:#cfe6ff}
 button{background:#243044;color:#dbe3f0;border:1px solid #35435c;border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer}
 button:hover{background:#2c3a52}
 #stage{flex:1;overflow:auto;padding:16px;background:#0b0d11}
 #frames{display:flex;gap:16px;align-items:flex-start;min-height:100%}
-.fw{flex:0 0 auto;background:#161920;border-radius:0;overflow:hidden}
-.fw .cap{padding:7px 10px;font-size:11px;color:#8b93a3;display:flex;justify-content:space-between}
+.fw{flex:0 0 auto;margin-bottom:28px}
+.fw .cap{padding:0 2px 6px;font-size:11px;color:#8b93a3;display:flex;justify-content:space-between}
 .fw .cap b{color:#dbe3f0}
 .fw iframe{display:block;border:0;background:#fff;height:calc(100vh - 150px);width:100%}
 #empty{color:#6f7a8d;padding:40px;font-size:13px;line-height:2;max-width:520px}
@@ -80,11 +78,11 @@ kbd{background:#1e232d;border-radius:4px;padding:1px 5px;font-size:11px}
     <span class="t" id="title">페이지를 선택하세요</span>
     <div class="chip-row" id="widthChips">
       <button type="button" class="chip" data-w="360">360</button>
-      <button type="button" class="chip on" data-w="390">390<span class="star">★</span></button>
+      <button type="button" class="chip on" data-w="390">390</button>
       <button type="button" class="chip" data-w="480">480</button>
-      <button type="button" class="chip on" data-w="768">768<span class="star">★</span></button>
+      <button type="button" class="chip on" data-w="768">768</button>
       <button type="button" class="chip" data-w="1440">1440</button>
-      <button type="button" class="chip on" data-w="1920">1920<span class="star">★</span></button>
+      <button type="button" class="chip on" data-w="1920">1920</button>
     </div>
     <button id="openTab">새 탭으로 열기</button>
     <button id="openGrp">이 그룹 전체 열기</button>
