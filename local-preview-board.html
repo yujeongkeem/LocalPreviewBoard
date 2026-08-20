@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Local Preview Board</title>
 <style>
-*{box-sizing:border-box;border-radius:0!important}
+*{box-sizing:border-box}
 body{margin:0;font:14px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif;background:#0f1115;color:#e6e8ec;display:flex;height:100vh;overflow:hidden}
 
 .thin-scroll{scrollbar-width:thin;scrollbar-color:transparent transparent}
@@ -21,41 +21,41 @@ body{margin:0;font:14px/1.5 -apple-system,"Segoe UI","Malgun Gothic",sans-serif;
 #side header{padding:16px;border-bottom:1px solid #262b36}
 #side h1{margin:0 0 4px;font-size:15px}
 #side .sub{font-size:12px;color:#8b93a3}
-#q{width:100%;margin-top:10px;padding:8px 10px;background:#1a1e26;color:#e6e8ec;font-size:13px}
+#q{width:100%;margin-top:10px;padding:8px 10px;background:#1a1e26;color:#e6e8ec;font-size:13px;border-radius:0}
 #q::placeholder{color:#6f7a8d}
 #folderRow{display:flex;gap:6px;margin-top:10px}
-#folderRow button{flex:1;background:#243044;color:#dbe3f0;padding:7px 8px;font-size:12px;cursor:pointer}
+#folderRow button{flex:1;background:#243044;color:#dbe3f0;border:1px solid #35435c;border-radius:6px;padding:7px 8px;font-size:12px;cursor:pointer}
 #folderRow button:hover{background:#2c3a52}
-#folderRow button.primary{background:#1e6edc}
+#folderRow button.primary{background:#1e6edc;border-color:#1e6edc}
 #folderRow button.primary:hover{background:#2a7ce8}
 #list{overflow:auto;flex:1;padding:8px}
 .grp{margin:10px 6px 4px;font-size:11px;letter-spacing:.06em;color:#6f7a8d;text-transform:uppercase}
-.row{display:flex;align-items:center;gap:6px;padding:7px 8px;cursor:pointer}
+.row{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:0;cursor:pointer}
 .row:hover{background:#1e232d}
 .row.on{background:#243044;box-shadow:inset 2px 0 0 #5b9dff}
 .row .nm{flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row a.ext{color:#6f7a8d;text-decoration:none;font-size:11px;padding:2px 6px;background:#1e232d}
-.row a.ext:hover{color:#e6e8ec;background:#2a303c}
+.row a.ext{color:#6f7a8d;text-decoration:none;font-size:11px;padding:2px 6px;border:1px solid #2d3340;border-radius:4px}
+.row a.ext:hover{color:#e6e8ec;border-color:#4a5468}
 #main{flex:1;display:flex;flex-direction:column;min-width:0}
 #bar{padding:10px 14px;border-bottom:1px solid #262b36;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#161920}
 #bar .t{font-weight:600;font-size:13px;margin-right:auto}
 .chip-row{display:flex;gap:6px;flex-wrap:wrap}
-.chip{display:inline-flex;align-items:center;background:#1a1e26;color:#8b93a3;padding:6px 12px;font-size:12px;cursor:pointer;user-select:none;white-space:nowrap}
-.chip:hover{background:#232833;color:#c3cad6}
-.chip.on{background:#1e6edc;color:#fff}
+.chip{display:inline-flex;align-items:center;background:#1a1e26;color:#8b93a3;border:1px solid #2d3340;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;user-select:none;white-space:nowrap}
+.chip:hover{background:#232833;color:#c3cad6;border-color:#4a5468}
+.chip.on{background:#1e6edc;color:#fff;border-color:#1e6edc}
 .chip .star{color:#5b9dff;margin-left:3px}
 .chip.on .star{color:#cfe6ff}
-button{background:#243044;color:#dbe3f0;padding:6px 11px;font-size:12px;cursor:pointer}
+button{background:#243044;color:#dbe3f0;border:1px solid #35435c;border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer}
 button:hover{background:#2c3a52}
 #stage{flex:1;overflow:auto;padding:16px;background:#0b0d11}
 #frames{display:flex;gap:16px;align-items:flex-start;min-height:100%}
-.fw{flex:0 0 auto;background:#161920;overflow:hidden}
+.fw{flex:0 0 auto;background:#161920;border-radius:0;overflow:hidden}
 .fw .cap{padding:7px 10px;font-size:11px;color:#8b93a3;display:flex;justify-content:space-between}
 .fw .cap b{color:#dbe3f0}
 .fw iframe{display:block;border:0;background:#fff;height:calc(100vh - 150px);width:calc(100% + 20px)}
 #empty{color:#6f7a8d;padding:40px;font-size:13px;line-height:2;max-width:520px}
-#empty code{background:#1e232d;padding:1px 5px;font-size:12px}
-kbd{background:#1e232d;padding:1px 5px;font-size:11px}
+#empty code{background:#1e232d;border-radius:4px;padding:1px 5px;font-size:12px}
+kbd{background:#1e232d;border-radius:4px;padding:1px 5px;font-size:11px}
 .status{font-size:11px;color:#6f7a8d;margin-top:6px}
 .status.err{color:#ff9c9c}
 </style>
