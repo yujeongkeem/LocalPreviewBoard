@@ -165,6 +165,15 @@ function buildGroups(paths) {
   return orderedGroupNames.map((g) => ({ g, items: byGroup.get(g) }));
 }
 
+async function checkSelfPresence(handle) {
+  try {
+    await handle.getFileHandle(SELF_NAME);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function scan(handle) {
   statusEl.className = "status";
   statusEl.textContent = "스캔 중…";
@@ -178,10 +187,21 @@ async function scan(handle) {
   }
   ALL_PAGES = paths;
   DATA = buildGroups(paths);
-  countSub.textContent = `HTML ${paths.length}개 · ${handle.name}`;
-  statusEl.textContent = "";
   document.getElementById("reconnect").style.display = "none";
   build("");
+
+  const selfPresent = await checkSelfPresence(handle);
+  if (!selfPresent) {
+    countSub.textContent = `HTML ${paths.length}개 · ${handle.name}`;
+    statusEl.className = "status err";
+    statusEl.textContent =
+      `⚠ 이 폴더(${handle.name})에 ${SELF_NAME} 자신이 없습니다. ` +
+      `미리보기가 안 뜨면, 이 파일을 방금 고른 폴더 안에 복사해두고 ` +
+      `그 복사본을 열어서 다시 시도하세요 (상대경로는 이 파일 자신의 위치 기준입니다).`;
+  } else {
+    countSub.textContent = `HTML ${paths.length}개 · ${handle.name}`;
+    statusEl.textContent = "";
+  }
 }
 
 async function pickFolder() {
